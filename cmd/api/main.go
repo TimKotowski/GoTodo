@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"gotodo/api"
 	"net/http"
 	"time"
 
-	"gotodo/api"
+	"gotodo/database"
 
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"
@@ -15,9 +16,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "postgres"
-	password = ""
-	dbname   = "Gotodo"
+	user     = "timkotowski"
+	password = "butter333"
+	dbname   = "gotodo"
 )
 
 func main() {
@@ -35,8 +36,11 @@ func main() {
 		panic(err)
 	}
 
+	// Create a new gotodo database.
+	gdb := database.New(db)
+
 	// Create a new API using our router.
-	api.New(db, r)
+	api.New(gdb, r)
 
 	// Create a new HTTP server.
 	server := &http.Server{
