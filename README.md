@@ -1,1 +1,1 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Golang Todo app, with a structured file system. Using Chi for the multiplexer with PSQL using RAW queries 
