@@ -23,7 +23,7 @@ func New(db *sql.DB) *Database {
 // Todo defines a todo.
 type Todo struct {
 	ID          int       `json:"id"`
-	Created     time.Time `json:"created"`
+	Created     time.Time `json:"created,omitempty"`
 	Description string    `json:"description"`
 	Completed   bool      `json:"completed"`
 }
@@ -40,7 +40,7 @@ const (
 	stmGetAllTodos = `SELECT id, description, completed FROM todos`
 	// stmtInsert defines the SQL statement to
 	// get a specific todo
-	stmGetOneTodo = `SELECT id, description, completed WHERE id = $1`
+	stmGetOneTodo = `SELECT id, description, completed FROM todos WHERE id=$1`
 	// stmtInsert defines the SQL statement to
 	// insert a new todo into the database.
 	stmtInsert = `INSERT INTO todos (created, description, completed) VALUES ($1, $2, $3) RETURNING id`
@@ -98,6 +98,7 @@ type GetParams struct {
 	Description string    `json:"description"`
 	Completed bool      `json:"completed"`
 }
+
 func (db *Database) GetAll() (*Todos, error) {
 
 		todos := &Todos{
@@ -126,24 +127,47 @@ func (db *Database) GetAll() (*Todos, error) {
 		return todos, nil
 }
 
-// type Parameter struct {
-// 	ID int `json:"id"`
-// }
 
-func (db *Database) GetSpecificTodo(params *int) (*GetParams, error) {
+	func (db *Database) GetSpecificTodo(id int) (*GetParams, error) {
 		todo := &GetParams{}
+		fmt.Println("\nid", id)
+		row := db.db.QueryRow(stmGetOneTodo, id)
 
-			var id int
-			var descripton string
-			err := db.db.QueryRow(stmGetOneTodo, params).Scan(&id, &descripton)
-			switch err {
-			case sql.ErrNoRows:
-				fmt.Println("No rows were returned!")
-			case nil:
-				fmt.Println(id, descripton)
-			default:
-				fmt.Println("error")
-			}
+		err := row.Scan(&todo.ID, &todo.Description, &todo.Completed)
+				switch err {
+				case sql.ErrNoRows:
+					fmt.Println("No rows were returned!")
+				case nil:
+					fmt.Println(todo.ID, todo.Description, todo.Completed)
+				default:
+					fmt.Println("inside db.Exec error")
+					fmt.Printf("error is: %v\n", err.Error())
+				}
+
+				return todo, nil
+	}
+
+type UpdateParams struct {
+	Description    *string    `json:"description"`
+}
+
+func (db *Database) UpdateTodo(id int, params *UpdateParams ) (*Todo, error) {
+				todo := &Todo{
+					Description: *params.Description,
+				}
+				if id == 0 {
+					fmt.Println("error")
+				} else if id > id {
+					fmt.Println("error")
+				}
+
+				_, err := db.db.Exec(stmtUpdate, id, &todo.Description)
+				if err != nil {
+					fmt.Println("inside db..db.Exec error")
+					fmt.Printf("error is: %v\n", err.Error())
+					return nil, err
+				}
+				fmt.Println("todo updated")
 
 			return todo, nil
 }
