@@ -16,9 +16,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "timkotowski"
-	password = "butter333"
-	dbname   = "gotodo"
+	user     = "user"
+	password = "password"
+	dbname   = "dbname"
 )
 
 func main() {
